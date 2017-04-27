@@ -15,13 +15,13 @@ birth.and.death = function(
 ){
   
 ## death  
-  if(birth.only != T){ # skip if it's just a birth
+  if(birth.only == T){ # skip if it's just a birth
 # a) randomly select a subset of labs
 index = sample(1:nrow(frame), size=birth.death, replace=F) 
 # b) then find the oldest
 oldest = subset(frame[index,], age==max(frame[index,]$age))$i # find the oldest
-if(length(oldest)>1){oldest = sample(oldest, size=1)}
-if(length(oldest)!=1){cat('error, oldest lab for removal not found.\n')}
+if(length(oldest) > 1){oldest = sample(oldest, size=1)}
+if(length(oldest) != 1){cat('error, oldest lab for removal not found.\n')}
 frame = subset(frame, i!= oldest) # remove lab from population
   }
   
@@ -62,7 +62,7 @@ frame = rbind(frame, new.lab)
 # temporary, output if less than 100 labs
 if(nrow(frame) < 100){
    outfile = paste('error', rnorm(1), '.RData', sep='')
-   save(frame, new.lab, oldest, high, file=outfile)
+   save(frame, new.lab, high, birth.only, file=outfile)
 }
 
 return(frame)
