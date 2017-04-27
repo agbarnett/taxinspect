@@ -26,9 +26,6 @@ taxinspect = function(
   cost <<- cost + (auditor.salary / 12) * round(select$cum.papers / n.papers.per.auditor)  # audit costs
   
 # kill lab if ...
-  # ... effort is too low?
-  #  kill = select$effort < 75
-  # ... replication rate is too low?
 # ... false positive rate is too high
   threshold = quantile(frame$cum.FP / frame$cum.papers, FP.threshold, na.rm=T) # time-relative threshold of poor performers (upper tail) based on false positives
   threshold = max(0.05, threshold) # limit threshold at FP prob of 0.05 (go no lower)

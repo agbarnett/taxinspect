@@ -1,7 +1,7 @@
 # simulate.research.world.R
 # simulate the research world
 # replicate http://rsos.royalsocietypublishing.org/content/3/9/160384 
-# Jan 2017
+# Apr 2017
 library(reshape2)
 library(doBy)
 library(plyr)
@@ -32,13 +32,13 @@ birth.death = 10
 sigma_e = 1
 sigma_r = 0.01
 sigma_W = 0.01
-tax.audit = T
+tax.audit = F
 increase_e = 5 # 5 for most
 FP.threshold = 0.67 # 0.67 for most
 n.papers.min = 50 # 50 for most
 n.papers.per.auditor = 10
-auditor.salary = 77
-audit = 80 # audit frequency (in time)
+auditor.salary = 105 # in USD $1000
+audit = 70 # audit frequency (in time); 75 baseline
 
 # set up times
 max.time = 800000 # maximum time examined
@@ -60,15 +60,12 @@ for (t in 1:max.time){
 
 # 2) Run a cycle of research
 init = F
-if (t < 5) {init = T} # no replication in early times
+if (t < 5) {init = T} # no replication in early times (allow hypotheses to build up)
 labs = perform.communicate(frame=labs, initial = init, r_i=r_i, eta=eta, VN=VN, VRneg=VRneg, VRpos=VRpos)
 labs$t = t
 
-#to.record = subset(labs, replicate==0, select=c('i','h','pos.obs'))
-#all.past = rbind(all.past, to.record)
-
 # 3) birth and death (and mutation)
-labs = birth.and.death(labs, mu_e=mu_e, mu_r=mu_r, mu_W=mu_W, sigma_e=sigma_e, sigma_W=sigma_W, sigma_r=sigma_r, birth.death=birth.death) 
+labs = birth.and.death(labs, mu_e=mu_e, mu_r=mu_r, mu_W=mu_W, sigma_e=sigma_e, sigma_W=sigma_W, sigma_r=sigma_r, birth.death=birth.death, birth.only=F) 
 
 # 4) audit (only start after 100)
 if(tax.audit == T & (t > 100) & (t %% audit == 0)){
@@ -99,5 +96,5 @@ sim.parms = data.frame(b=b, e_0=e_0, r_0=r_0, W_0=W_0, initial_random=initial_ra
                        cost=cost, audit=audit, naudit=naudit, total.papers=total.papers)
 
 # save meta data
-outfile = paste('Yetax.', run.number, '.RData', sep='')
+outfile = paste('meta.data.', run.number, '.RData', sep='')
 save(sim.parms, file=outfile)
