@@ -1,6 +1,6 @@
 # birth.and.death.R
 # birth and death of lab (plus mutation of new labs)
-# Jan 2017
+# Apr 2017
 
 birth.and.death = function(
   frame, # input data
@@ -15,7 +15,7 @@ birth.and.death = function(
 ){
   
 ## death  
-  if(birth.only == T){ # skip if it's just a birth
+  if(birth.only == F){ # skip if it's just a birth
 # a) randomly select a subset of labs
 index = sample(1:nrow(frame), size=birth.death, replace=F) 
 # b) then find the oldest
@@ -34,7 +34,7 @@ if(length(high) > 1){high = sample(high, size=1)} # if ties then select one
 new.lab = frame[frame$i==high, ]
 new.lab$age = new.lab$payoff = 0 # reset age and pay-off
 new.lab$parent = new.lab$i # new lab's parent lab
-new.lab$i = new.lab$i + runif(n=1) # new lab number
+new.lab$i = new.lab$i * rgamma(1, shape=10001, rate=10000) # new lab number, adding runif did not work (made duplicates), increase i by 0.1% on average
 new.lab$cum.papers = 0 # cumulative papers
 new.lab$cum.FP = 0 # cumulative FP numbers
 new.lab$audit = 0 # audit status
