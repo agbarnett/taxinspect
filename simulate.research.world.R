@@ -16,7 +16,7 @@ source('tackle.R')
 
 ## set up all parameters
 b = 0.1 # base rate probability that novel hypothesis are true
-e_0 = 10 # usually 75
+e_0 = 75 # usually 75
 r_0 = 0
 W_0 = 0.8
 initial_random = F
@@ -32,13 +32,14 @@ birth.death = 10
 sigma_e = 1
 sigma_r = 0.01
 sigma_W = 0.01
-tax.audit = F
+tax.audit = T # T for most
 increase_e = 5 # 5 for most
 FP.threshold = 0.67 # 0.67 for most
 n.papers.min = 50 # 50 for most
 n.papers.per.auditor = 10
 auditor.salary = 105 # in USD $1000
-audit = 70 # audit frequency (in time); 75 baseline
+audit = 50 # audit frequency (in time); 70 baseline
+audit.error = 0.2 # 0 for most, range [0,1)
 
 # set up times
 max.time = 800000 # maximum time examined
@@ -71,7 +72,8 @@ labs = birth.and.death(labs, mu_e=mu_e, mu_r=mu_r, mu_W=mu_W, sigma_e=sigma_e, s
 if(tax.audit == T & (t > 100) & (t %% audit == 0)){
   labs = taxinspect(labs, mu_e=mu_e, mu_r=mu_r, mu_W=mu_W,
     increase_e = increase_e, FP.threshold = FP.threshold, n.papers.min = n.papers.min,
-    n.papers.per.auditor = n.papers.per.auditor, auditor.salary = auditor.salary, sim=run.number)
+    n.papers.per.auditor = n.papers.per.auditor, auditor.salary = auditor.salary, sim=run.number,
+    audit.error = audit.error)
 }
 
 # keep occasional record of labs over time

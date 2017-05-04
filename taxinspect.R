@@ -14,6 +14,7 @@ taxinspect = function(
   n.papers.min = 50, # minimum number of papers needed to audit
   n.papers.per.auditor = 10, # number of papers per auditor
   auditor.salary = 77, # salary of auditor (USD $10K)
+  audit.error = 0, # peer review error of auditors range = [0,1)
   sim = NA # simulation number
 ){
 
@@ -29,16 +30,21 @@ taxinspect = function(
 # ... false positive rate is too high
   threshold = quantile(frame$cum.FP / frame$cum.papers, FP.threshold, na.rm=T) # time-relative threshold of poor performers (upper tail) based on false positives
   threshold = max(0.05, threshold) # limit threshold at FP prob of 0.05 (go no lower)
-  audit.error = 0 # option to add measurement error (peer reviewer error) here to select$cum.FP
-  #audit.error = rpois(select$cum.papers, lambda)
-  kill = ( (select$cum.FP + audit.error) / select$cum.papers) > threshold
+  if(audit.error>0){
+  	audit.sigma = (select$cum.FP*audit.error) / 1.96 # as a proportion of false positives
+  	aerror = round(rnorm(n=1, mean=0, sd=audit.sigma)) # plus/minus; centred on zero
+  	kill = ( (select$cum.FP + aerror) / select$cum.papers ) > threshold
+  }
+  if(audit.error==0){
+  	kill = ( select$cum.FP / select$cum.papers ) > threshold
+  }
   if(kill == T){
     e1 = nrow(eligible)
     eligible = subset(eligible, i != select$i) # remove lab
     e2 = nrow(eligible)
     if(e1==e2){cat('kill did not work, select$i=',select$i,'\n')}
     frame = rbind(eligible, not.eligible) # add back old labs
-    # extra birth if there's been a death  
+    # extra birth as there's been a death  
     frame = birth.and.death(frame, birth.only=T, mu_e=mu_e, mu_W=mu_W, mu_r=mu_r)
     ## store information on kills
     kfile = paste('kills.', sim, '.RData', sep='')
