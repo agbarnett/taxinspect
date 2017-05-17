@@ -33,13 +33,13 @@ sigma_e = 1
 sigma_r = 0.01
 sigma_W = 0.01
 tax.audit = T # T for most
-increase_e = 5 # 5 for most
+increase_e = 0 # 5 for most
 FP.threshold = 0.67 # 0.67 for most
 n.papers.min = 50 # 50 for most
 n.papers.per.auditor = 10
 auditor.salary = 105 # in USD $1000
-audit = 50 # audit frequency (in time); 70 baseline
-audit.error = 0.2 # 0 for most, range [0,1)
+audit = 70 # audit frequency (in time); 70 baseline
+audit.error = 0 # 0 for most, range [0,1)
 
 # set up times
 max.time = 800000 # maximum time examined
