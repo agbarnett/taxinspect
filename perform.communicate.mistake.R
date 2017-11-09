@@ -1,5 +1,6 @@
-# perform.communicate.mistake.R
+# perform.communicate.R
 # function to perform and communicate research
+# version with mistake probability dependent on effort
 # Oct 2017
 
 perform.communicate = 
@@ -12,7 +13,8 @@ perform.communicate =
            VOpos = 0.1, # pay-off for having novel result replicated
            VOneg = -100, # pay-off for failing to have novel result replicated
            initial = F, # flag for world starting where there are not enough papers to replicate
-	   mistake.baseline = 0.5 # baseline probability of mistake
+	   mistake.baseline = 0.5, # baseline probability of mistake
+           mistake.slope = -0.001 # slope of reduced mistake probability for increased effort
   ){
     n = nrow(frame)
     # a) start new work
@@ -54,8 +56,9 @@ perform.communicate =
     frame$payoff = frame$payoff + (VN*(1-frame$replicate)*frame$pos.obs) + (VRpos*frame$pos.obs*frame$replicate) + (VRneg*(1-frame$pos.obs)*frame$replicate)
     # to do?: replication payoff
     # f) add binomial mistake (Oct 2017)
-    frame$mistake = rbinom(size=1, n=n.work, prob=mistake.baseline) # random mistake
-    frame$mistake = frame$mistake * frame$FP # only possible where FP error made
+    if(mistake.slope != 99) {frame$p_mistake = mistake.baseline + (mistake.slope*(frame$e_i-1))} # linear
+    if(mistake.slope == 99) {frame$p_mistake = sqrt(1/frame$e_i)} # non-linear
+    frame$mistake = rbinom(size=1, n=n.work, prob=frame$p_mistake)
     frame$cum.mistakes = frame$cum.mistakes + frame$mistake # cumulative mistakes
     # add back non-working labs (if any)
     if(nrow(store) > 0) {frame = rbind.fill(frame, store)}

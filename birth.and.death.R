@@ -1,6 +1,6 @@
 # birth.and.death.R
 # birth and death of lab (plus mutation of new labs)
-# Apr 2017
+# Oct 2017
 
 birth.and.death = function(
   frame, # input data
@@ -22,13 +22,18 @@ index = sample(1:nrow(frame), size=birth.death, replace=F)
 oldest = subset(frame[index,], age==max(frame[index,]$age))$i # find the oldest
 if(length(oldest) > 1){oldest = sample(oldest, size=1)}
 if(length(oldest) != 1){cat('error, oldest lab for removal not found.\n')}
+rem = subset(frame, i== oldest, select=c(i,age,audit)) # store just a few variables
 frame = subset(frame, i!= oldest) # remove lab from population
+# c) store data on removed lab (temporary)
+rem$tax = F
+if(runif(1)<0.01){removed <<- rbind(removed, rem)} # only record 1%
+
   }
   
 ## birth
 # a) randomly select a subset ...
 index = sample(1:nrow(frame), size=birth.death, replace=F) 
-# b) ... then find one with higest payoff
+# b) ... then find one with highest payoff
 high = subset(frame[index,], payoff==max(frame[index,]$payoff))$i # find the highest payoff
 if(length(high) > 1){high = sample(high, size=1)} # if ties then select one
 new.lab = frame[frame$i==high, ]
@@ -37,6 +42,7 @@ new.lab$parent = new.lab$i # new lab's parent lab
 new.lab$i = new.lab$i * rgamma(1, shape=10001, rate=10000) # new lab number, adding runif did not work (made duplicates), increase i by 0.1% on average
 new.lab$cum.papers = 0 # cumulative papers
 new.lab$cum.FP = 0 # cumulative FP numbers
+new.lab$cum.mistakes = 0 # cumulative mistakes
 new.lab$audit = 0 # audit status
 new.lab$new = new.lab$h = new.lab$true = new.lab$replicate = new.lab$pos.obs = new.lab$FP = NA # blank carried over results that are not applicable
 # c) mutate

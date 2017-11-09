@@ -2,7 +2,7 @@
 # simulate single lab being audited; version based on using false positives
 # Oct 2017
 # variables to keep in kill data:
-svars = c('t','i','parent','age','e_i','cum.papers','cum.mistakes','payoff','alpha_i','FP')
+svars = c('t','i','parent','age','e_i','cum.papers','cum.FP','payoff','alpha_i','FP')
 
 taxinspect = function(
   frame, # input data
@@ -28,21 +28,17 @@ taxinspect = function(
   cost <<- cost + (auditor.salary / 12) * round(select$cum.papers / n.papers.per.auditor)  # audit costs
   
 # kill lab if ...
-# ... rate of mistakes is too high
-  threshold = quantile(frame$cum.mistakes / frame$cum.papers, FP.threshold, na.rm=T) # time-relative threshold of poor performers (upper tail) based on false positives
-  threshold = max(0.05, threshold) # limit threshold at 0.05 of distribution (go no lower)
-  if(audit.error > 0){
-  	audit.sigma = (select$cum.mistakes*audit.error) / 1.96 # as a proportion of false positives
+# ... false positive rate is too high
+  threshold = quantile(frame$cum.FP / frame$cum.papers, FP.threshold, na.rm=T) # time-relative threshold of poor performers (upper tail) based on false positives
+  threshold = max(0.05, threshold) # limit threshold at FP prob of 0.05 (go no lower)
+  if(audit.error>0){
+  	audit.sigma = (select$cum.FP*audit.error) / 1.96 # as a proportion of false positives
   	aerror = round(rnorm(n=1, mean=0, sd=audit.sigma)) # plus/minus; centred on zero
-  	kill = ( (select$cum.mistakes + aerror) / select$cum.papers ) > threshold
+  	kill = ( (select$cum.FP + aerror) / select$cum.papers ) > threshold
   }
-  if(audit.error == 0){
-  	kill = ( select$cum.mistakes / select$cum.papers ) > threshold
+  if(audit.error==0){
+  	kill = ( select$cum.FP / select$cum.papers ) > threshold
   }
-  if(audit.error == -99){
-  	  kill = runif(1) > 0.5 # totally random kill with 50% probability (negative control)
-  }
-  
   if(kill == T){
     e1 = nrow(eligible)
     rem = subset(eligible, i==select$i, select=c(i,age,audit)) # store to show below
@@ -53,22 +49,18 @@ taxinspect = function(
     frame = rbind(eligible, not.eligible) # add back old labs
     # extra birth as there's been a death  
     frame = birth.and.death(frame, birth.only=T, mu_e=mu_e, mu_W=mu_W, mu_r=mu_r)
-    ## store information on kills and added labs
+    ## store information on kills
     kill.store = F
     if(kill.store==T){
        kfile = paste('kills.', sim, '.RData', sep='')
        d = length(dir(pattern=kfile))
-       if(d==0){ # first kill
-         kill = subset(select, select=svars); kill$kill=T # killed lab
-         new = subset(frame[100,], select=svars); new$kill=F # new lab to replace killed lab
-         kills = rbind(kill, new)
+       if(d==0){
+         kills = subset(select, select=svars)
          save(kills, file=kfile)
        }
-       if(d>0){ # concatenate
+       if(d>0){
          load(kfile)
-         kill = subset(select, select=svars); kill$kill=T
-         new = subset(frame[100,], select=svars); new$kill=F
-         kills = rbind(kills, kill, new)
+         kills = rbind(kills, subset(select, select=svars))
          save(kills, file=kfile)
        }
     }
