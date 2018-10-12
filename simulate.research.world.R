@@ -7,7 +7,7 @@ library(doBy)
 library(plyr)
 library(ggplot2) # used by false positive
 source('false.positive.R')
-source('perform.communicate.R')
+source('perform.communicate.mistake.R')
 source('initialise.labs.R')
 source('initialise.labs.random.R')
 source('birth.and.death.R')
@@ -32,7 +32,7 @@ birth.death = 10
 sigma_e = 1
 sigma_r = 0.01
 sigma_W = 0.01
-tax.audit = F # T for most
+tax.audit = FALSE # TRUE for most
 increase_e_audited = 1 # 5 for most
 increase_e_networked = 0.5 # 5 for most
 FP.threshold = 0.67 # 0.67 for most
@@ -42,6 +42,9 @@ auditor.salary = 105 # in USD $1000
 audit = 200 # audit frequency (in time); 70 baseline
 audit.error = 0 # 0 for most, range [0,1); -99 = random kill
 mistake.baseline = 0.25 # probability of mistake when there is a false positive
+# parameters for running multiple simulations:
+fint = 'res' # initial part of filename
+run.number = 1 # set to 1 here, but usually set to a range of numbers for multiple simulation runs
 
 # set up times
 max.time = 800000 # maximum time examined

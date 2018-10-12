@@ -1,4 +1,4 @@
-# perform.communicate.mistake.R
+# perform.communicate.R
 # function to perform and communicate research
 # Oct 2017
 
